@@ -1,4 +1,3 @@
-
 import streamlit as st
 import requests
 import pandas as pd
@@ -14,6 +13,11 @@ st.set_page_config(
 )
 
 # =====================================
+# 🌐 BACKEND URL
+# =====================================
+BACKEND_URL = "https://codedna-backend.onrender.com"
+
+# =====================================
 # 🧠 SESSION STATE
 # =====================================
 if "repo_path" not in st.session_state:
@@ -24,6 +28,9 @@ if "selected_file" not in st.session_state:
 
 if "selected_content" not in st.session_state:
     st.session_state.selected_content = None
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
 # =====================================
 # 🎨 TITLE
@@ -42,6 +49,7 @@ Analyze software architecture visually using:
 # =====================================
 # 🔗 GITHUB ANALYZER
 # =====================================
+st.markdown("---")
 st.subheader("🔗 Analyze GitHub Repository")
 
 repo_url = st.text_input(
@@ -61,7 +69,7 @@ if st.button("🚀 Analyze Repository"):
             try:
 
                 res = requests.get(
-                    "http://127.0.0.1:8000/analyze-github",
+                    f"{BACKEND_URL}/analyze-github",
                     params={
                         "repo_url": repo_url
                     }
@@ -69,17 +77,19 @@ if st.button("🚀 Analyze Repository"):
 
                 if res.get("status") == "success":
 
-                    st.success("✅ Repository analyzed successfully")
+                    st.success("Repository analyzed successfully")
 
-                    # =====================================
-                    # 🧠 SAVE REPO PATH
-                    # =====================================
                     st.session_state.repo_path = res["repo_path"]
 
                     st.write(
                         "📂 Active Repository:",
                         st.session_state.repo_path
                     )
+
+                    # =====================================
+                    # 🧹 CLEAR OLD CHAT
+                    # =====================================
+                    st.session_state.messages = []
 
                 else:
 
@@ -108,7 +118,7 @@ if not st.session_state.repo_path:
     st.stop()
 
 # =====================================
-# 🧠 DEBUG ACTIVE REPO
+# 🧠 ACTIVE REPO
 # =====================================
 st.markdown("---")
 
@@ -117,7 +127,7 @@ st.success(
 )
 
 # =====================================
-# 🧠 AI PROCESS FLOW
+# 🧠 AI PIPELINE
 # =====================================
 st.markdown("---")
 st.subheader("🧠 CodeDNA Intelligence Pipeline")
@@ -127,9 +137,7 @@ col1, col2, col3, col4, col5 = st.columns(5)
 with col1:
 
     st.info("""
-    ### 🔗
-
-    GitHub Repository
+    ### GitHub Repository
 
     User submits repository URL
     """)
@@ -137,9 +145,7 @@ with col1:
 with col2:
 
     st.info("""
-    ### 📂
-
-    Repository Parsing
+    ### Repository Parsing
 
     Extract files and structure
     """)
@@ -147,9 +153,7 @@ with col2:
 with col3:
 
     st.info("""
-    ### 🧠
-
-    AI Analysis
+    ### AI Analysis
 
     Detect architecture and risks
     """)
@@ -157,9 +161,7 @@ with col3:
 with col4:
 
     st.info("""
-    ### 📊
-
-    Engineering Dashboard
+    ### Engineering Dashboard
 
     Generate analytics and metrics
     """)
@@ -167,9 +169,7 @@ with col4:
 with col5:
 
     st.success("""
-    ### 🚀
-
-    Developer Intelligence
+    ### Developer Intelligence
 
     AI onboarding and understanding
     """)
@@ -183,14 +183,14 @@ st.subheader("📁 Intelligent Project Explorer")
 left_col, right_col = st.columns([1, 2])
 
 # =====================================
-# 🌳 TREE
+# 🌳 FILE TREE
 # =====================================
 with left_col:
 
     try:
 
         tree_res = requests.get(
-            "http://127.0.0.1:8000/project-tree",
+            f"{BACKEND_URL}/project-tree",
             params={
                 "repo_path": st.session_state.repo_path
             }
@@ -218,7 +218,7 @@ with left_col:
                         )
 
                         file_res = requests.get(
-                            "http://127.0.0.1:8000/file-content",
+                            f"{BACKEND_URL}/file-content",
                             params={
                                 "repo_path": st.session_state.repo_path,
                                 "file_path": file_path
@@ -276,13 +276,13 @@ with right_col:
         if st.button("🧠 Explain This File"):
 
             with st.spinner(
-                "Analyzing file with AI..."
+                "Analyzing file..."
             ):
 
                 try:
 
                     response = requests.get(
-                        "http://127.0.0.1:8000/ai-file-explain",
+                        f"{BACKEND_URL}/ai-file-explain",
                         params={
                             "repo_path": st.session_state.repo_path,
                             "file_path": st.session_state.selected_file
@@ -319,17 +319,10 @@ with right_col:
         )
 
 # =====================================
-# 🧠 CHATGPT STYLE AI CHAT
+# 💬 AI CHATBOT
 # =====================================
 st.markdown("---")
 st.subheader("🧠 CodeDNA AI Assistant")
-
-# =====================================
-# 💬 CHAT HISTORY
-# =====================================
-if "messages" not in st.session_state:
-
-    st.session_state.messages = []
 
 # =====================================
 # 💬 DISPLAY CHAT
@@ -348,12 +341,12 @@ prompt = st.chat_input(
 )
 
 # =====================================
-# 🚀 PROCESS MESSAGE
+# 🚀 PROCESS CHAT
 # =====================================
 if prompt:
 
     # =====================================
-    # 👤 SHOW USER MESSAGE
+    # 👤 USER MESSAGE
     # =====================================
     st.session_state.messages.append({
 
@@ -377,7 +370,7 @@ if prompt:
 
                 response = requests.get(
 
-                    "http://127.0.0.1:8000/chat",
+                    f"{BACKEND_URL}/chat",
 
                     params={
 
